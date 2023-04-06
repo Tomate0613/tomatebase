@@ -1,2 +1,2 @@
-# tomatebase
+# Tomatebase
 Propably the worst "database" ever
