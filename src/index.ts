@@ -8,15 +8,18 @@ export default class Database<Data = Serializable<unknown>> {
 
   constructor(
     filepath: string,
-    initialData: Data,
+    defaultData: Data,
     classes: SerializeableClass[]
   ) {
     this.filepath = filepath;
 
     if (fs.existsSync(filepath)) {
-      this.data = deserialize(fs.readFileSync(filepath).toString(), classes);
+      this.data = {
+        ...defaultData,
+        ...deserialize(fs.readFileSync(filepath).toString(), classes),
+      };
     } else {
-      this.data = initialData;
+      this.data = defaultData;
     }
   }
 
