@@ -3,7 +3,7 @@ export interface SerializeableClass {
 }
 
 export class Serializable<T> {
-  data: T;
+  protected data: T;
 
   constructor(data: T) {
     this.data = data;
