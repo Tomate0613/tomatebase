@@ -1,0 +1,45 @@
+{
+  "name": "tomatebase",
+  "version": "1.0.0",
+  "description": "Probably the worst \"database\" ever",
+  "main": "dist/index.js",
+  "scripts": {
+    "prepare": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "database",
+    "ts",
+    "json"
+  ],
+  "author": "Tomate0613",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@types/node": "^18.15.11",
+    "jest": "^29.5.0",
+    "typescript": "^5.0.3",
+    "uuid": "^9.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/uuid": "^9.0.1",
+    "ts-jest": "^29.1.0"
+  },
+  "jest": {
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json"
+    ],
+    "transform": {
+      "\\.(ts|tsx|js|jsx)$": "ts-jest"
+    }
+  }
+}
