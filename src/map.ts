@@ -34,6 +34,6 @@ export class TomateMap<
     if (!value.id) value.id = uuidv4();
 
     this.set(value.id, value);
-    return value;
+    return value as Value;
   }
 }
