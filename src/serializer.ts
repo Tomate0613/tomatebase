@@ -21,9 +21,8 @@ export default function deserialize(
   json: string,
   serializables: SerializeableClass[]
 ) {
-  return JSON.parse(json, (key, value) => {
+  return JSON.parse(json, (_key, value) => {
     if (value === null) {
-      console.error(`The database seems to be broken; ${key} is null`);
       return null;
     }
 
