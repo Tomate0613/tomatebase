@@ -1,12 +1,12 @@
 import { Serializable } from './serializer';
 import { v4 as uuidv4 } from 'uuid';
 
-export class TomateMap<
-  Value extends { readonly id: string }
-> extends Serializable<{
-  [key: string]: Value;
+type TomateData<T> = T & { readonly id: string };
+
+export default class TomateMap<Value> extends Serializable<{
+  [key: string]: TomateData<Value>;
 }> {
-  constructor(data?: { [key: string]: Value }) {
+  constructor(data?: { [key: string]: TomateData<Value> }) {
     super(data ?? {});
   }
 
@@ -14,8 +14,8 @@ export class TomateMap<
     return this.data[id];
   }
 
-  set(id: string, value: Omit<Value, 'id'>) {
-    this.data[id] = { ...value, id } as Value;
+  set(id: string, value: Value) {
+    this.data[id] = { ...value, id };
   }
 
   remove(id: string) {
@@ -30,10 +30,10 @@ export class TomateMap<
     return Object.keys(this.data).length;
   }
 
-  add(value: Omit<Value, 'id'> & { id?: string }) {
+  add(value: Value & { id?: string }): TomateData<Value> {
     if (!value.id) value.id = uuidv4();
 
     this.set(value.id, value);
-    return value as Value;
+    return value as TomateData<Value>;
   }
 }

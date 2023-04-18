@@ -1,7 +1,10 @@
 import fs from 'fs';
-import deserialize, { Serializable, SerializeableClass } from './serializer';
+import deserialize, {
+  DbSerializeableClass,
+  SerializeableClass,
+} from './serializer';
 
-export default class Database<Data = Serializable<unknown>> {
+export default class Database<Data = unknown> {
   data: Data;
 
   filepath: string;
@@ -9,14 +12,14 @@ export default class Database<Data = Serializable<unknown>> {
   constructor(
     filepath: string,
     defaultData: Data,
-    classes: SerializeableClass[]
+    classes: (DbSerializeableClass | SerializeableClass)[]
   ) {
     this.filepath = filepath;
 
     if (fs.existsSync(filepath)) {
       this.data = {
         ...defaultData,
-        ...deserialize(fs.readFileSync(filepath).toString(), classes),
+        ...deserialize(fs.readFileSync(filepath).toString(), classes, this),
       };
     } else {
       this.data = defaultData;
@@ -28,4 +31,5 @@ export default class Database<Data = Serializable<unknown>> {
   }
 }
 
-export * from './map';
+export { default as TomateMap } from './map';
+export { default as Reference } from './ref';
