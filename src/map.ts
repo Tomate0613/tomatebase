@@ -14,8 +14,8 @@ export default class TomateMap<Value> extends Serializable<{
     return this.data[id];
   }
 
-  set(id: string, value: Value) {
-    this.data[id] = { ...value, id };
+  set(id: string, value: Omit<Value, 'id'> & { id?: string }) {
+    this.data[id] = { ...value, id } as TomateData<Value>;
   }
 
   remove(id: string) {
@@ -30,7 +30,7 @@ export default class TomateMap<Value> extends Serializable<{
     return Object.keys(this.data).length;
   }
 
-  add(value: Value & { id?: string }): TomateData<Value> {
+  add(value: Omit<Value, 'id'> & { id?: string }): TomateData<Value> {
     if (!value.id) value.id = uuidv4();
 
     this.set(value.id, value);
