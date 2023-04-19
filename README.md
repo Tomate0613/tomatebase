@@ -192,7 +192,7 @@ export default class Boat extends Serializable<BoatData> {
 }
 ```
 
-REMEMBER TO NOW ADD BOAT TO THE CONSTRUCTOR ARRAY
+Remember to now add `Boat` to the array
 ```TS
 const database = new Database<DatabaseData>(
   'db.json',
