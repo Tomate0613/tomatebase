@@ -11,8 +11,9 @@ Propably the worst "database" ever
 - Use dist folder
 
 ## Getting started
-#### db.ts
 To start using Tomatebase, create a new database instance and define the data structure for your database.
+
+#### db.ts
 ```TS
 import Database from 'tomatebase';
 
