@@ -14,4 +14,8 @@ export default class Reference<T> extends DbSerializable<string> {
   set path(path: string) {
     this.data = path;
   }
+
+  get path() {
+    return this.data;
+  }
 }

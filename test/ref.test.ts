@@ -77,5 +77,8 @@ describe('Reference', () => {
 
   it('should be able to change the reference', () => {
     newDb.people.get(person.id).phone.path = `phones.data.${phone2.id}`;
+    expect(newDb.people.get(person.id).phone.path).toBe(
+      `phones.data.${phone2.id}`
+    );
   });
 });
