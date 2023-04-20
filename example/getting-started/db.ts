@@ -13,7 +13,7 @@ type DatabaseData = {
 };
 
 const database = new Database<DatabaseData>(
-  'db.json',
+  'database/db.json',
   {
     settings: {
       volume: 100,

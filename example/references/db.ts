@@ -15,7 +15,7 @@ type DatabaseData = {
 };
 
 export const database = new Database<DatabaseData>(
-  'db.json',
+  'database/db.json',
   {
     people: new TomateMap(),
   },

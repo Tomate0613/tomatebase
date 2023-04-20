@@ -30,7 +30,7 @@ type DatabaseData = {
 };
 
 const database = new Database<DatabaseData>(
-  'db.json',
+  'database/db.json',
   {
     settings: {
       volume: 100,
@@ -100,7 +100,7 @@ type DatabaseData = {
 };
 
 export const database = new Database<DatabaseData>(
-  'db.json',
+  'database/db.json',
   {
     people: new TomateMap(),
   },
@@ -196,7 +196,7 @@ export default class Boat extends Serializable<BoatData> {
 Remember to now add `Boat` to the array
 ```TS
 const database = new Database<DatabaseData>(
-  'db.json',
+  'database/db.json',
   {
     boat: new Boat(),
   },

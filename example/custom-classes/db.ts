@@ -6,7 +6,7 @@ type DatabaseData = {
 };
 
 const database = new Database<DatabaseData>(
-  'db.json',
+  'database/db.json',
   {
     boat: new Boat(),
   },
