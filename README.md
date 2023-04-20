@@ -15,7 +15,7 @@ To start using Tomatebase, create a new database instance and define the data st
 
 #### db.ts
 ```TS
-import Database from 'tomatebase';
+import Database, { TomateMap } from 'tomatebase';
 
 type WorldData = {
   name: string;
@@ -25,8 +25,8 @@ type WorldData = {
 type DatabaseData = {
   settings: {
     volume: number;
-  },
-  worlds: TomateMap<WorldData>,
+  };
+  worlds: TomateMap<WorldData>;
 };
 
 const database = new Database<DatabaseData>(
