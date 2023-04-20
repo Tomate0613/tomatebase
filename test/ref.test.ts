@@ -76,9 +76,6 @@ describe('Reference', () => {
   });
 
   it('should be able to change the reference', () => {
-    const p = newDb.people.get(person.id).phone.path;
-    console.log(p);
-
     newDb.people.get(person.id).phone.path = `phones.data.${phone2.id}`;
   });
 });
