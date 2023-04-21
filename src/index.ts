@@ -3,6 +3,7 @@ import deserialize, {
   DbSerializeableClass,
   SerializeableClass,
 } from './serializer';
+import path from 'path';
 
 export default class Database<Data = unknown> {
   data: Data;
@@ -27,6 +28,7 @@ export default class Database<Data = unknown> {
   }
 
   save() {
+    fs.mkdirSync(path.dirname(this.filepath), { recursive: true });
     fs.writeFileSync(this.filepath, JSON.stringify(this.data));
   }
 }
