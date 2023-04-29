@@ -7,8 +7,8 @@ import path from 'path';
 
 export default class Database<Data = unknown> {
   data: Data;
-
   filepath: string;
+  classes: (DbSerializeableClass | SerializeableClass)[];
 
   constructor(
     filepath: string,
@@ -16,6 +16,7 @@ export default class Database<Data = unknown> {
     classes: (DbSerializeableClass | SerializeableClass)[]
   ) {
     this.filepath = filepath;
+    this.classes = classes;
 
     if (fs.existsSync(filepath)) {
       this.data = {
@@ -34,4 +35,5 @@ export default class Database<Data = unknown> {
 }
 
 export { default as TomateMap } from './map';
+export { default as FsMap } from './fsMap';
 export { default as Reference } from './ref';
