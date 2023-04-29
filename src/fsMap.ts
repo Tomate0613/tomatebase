@@ -35,10 +35,13 @@ export default class FsMap<Value> {
   }
 
   set(id: string, value: Omit<Value, 'id' | 'folder'> & { id?: string }) {
+    const folder = `${this.data.path}/${id}`;
+    if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
+
     this.entries[id] = {
       ...value,
       id,
-      folder: `${this.data.path}/${id}`,
+      folder,
     } as FsData<Value>;
   }
 
