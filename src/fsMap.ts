@@ -3,12 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import Database from 'index';
 
-type TomateData<T> = T & { readonly id: string };
+type FsData<T> = T & { readonly id: string; readonly folder: string };
 
 export default class FsMap<Value> {
   data: { path: string };
   entries: {
-    [key: string]: TomateData<Value>;
+    [key: string]: FsData<Value>;
   };
 
   constructor(db: Database | null, data: { path: string }) {
@@ -34,8 +34,12 @@ export default class FsMap<Value> {
     return this.entries[id];
   }
 
-  set(id: string, value: Omit<Value, 'id'> & { id?: string }) {
-    this.entries[id] = { ...value, id } as TomateData<Value>;
+  set(id: string, value: Omit<Value, 'id' | 'folder'> & { id?: string }) {
+    this.entries[id] = {
+      ...value,
+      id,
+      folder: `${this.data.path}/${id}`,
+    } as FsData<Value>;
   }
 
   remove(id: string) {
@@ -50,22 +54,22 @@ export default class FsMap<Value> {
     return Object.keys(this.entries).length;
   }
 
-  add(value: Omit<Value, 'id'> & { id?: string }): TomateData<Value> {
+  add(
+    value: Omit<Value, 'id' | 'folder'> & { id?: string; folder?: string }
+  ): FsData<Value> {
     if (!value.id) value.id = uuidv4();
+    value.folder = `${this.data.path}/${value.id}`;
 
     this.set(value.id, value);
-    return value as TomateData<Value>;
+    return value as FsData<Value>;
   }
 
   toJSON() {
-    Object.keys(this.entries).forEach((folder) => {
-      if (!fs.existsSync(`${this.data.path}/${folder}`))
-        fs.mkdirSync(`${this.data.path}/${folder}`, { recursive: true });
+    this.list().forEach((entry) => {
+      if (!fs.existsSync(entry.folder))
+        fs.mkdirSync(entry.folder, { recursive: true });
 
-      fs.writeFileSync(
-        `${this.data.path}/${folder}/data.json`,
-        JSON.stringify(this.entries[folder])
-      );
+      fs.writeFileSync(`${entry.folder}/data.json`, JSON.stringify(entry));
     });
 
     return {

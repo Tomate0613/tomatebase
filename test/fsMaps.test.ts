@@ -29,10 +29,12 @@ describe('FsMap', () => {
     expect(db2.data.test.get('test')).toStrictEqual({
       id: 'test',
       data: 'test',
+      folder: 'test/fsMapTest/something/test',
     });
     expect(db2.data.test.get(test2.id)).toStrictEqual({
       id: test2.id,
       data: 'test2',
+      folder: `test/fsMapTest/something/${test2.id}`,
     });
   });
 });
