@@ -1,4 +1,4 @@
-import Database from 'index';
+import Database, { FsMappable, TomateMappable } from 'index';
 
 export interface DbSerializeableClass {
   new (db: Database, data: never): void;
@@ -36,6 +36,42 @@ export class DefaultSerializable<T> {
   toJSON() {
     return {
       data: this.data,
+      class: this.constructor.name,
+    };
+  }
+}
+
+export class DefaultMappableSerializable<T> implements TomateMappable {
+  data: T;
+  id: string;
+
+  constructor(data: { data: T; id: string }) {
+    this.data = data.data;
+    this.id = data.id;
+  }
+
+  toJSON() {
+    return {
+      data: { data: this.data, id: this.id },
+      class: this.constructor.name,
+    };
+  }
+}
+
+export class DefaultFsMappableSerializable<T> implements FsMappable {
+  data: T;
+  id: string;
+  folder: string;
+
+  constructor(data: { data: T; id: string; folder: string }) {
+    this.data = data.data;
+    this.id = data.id;
+    this.folder = data.folder;
+  }
+
+  toJSON() {
+    return {
+      data: { data: this.data, id: this.id, folder: this.folder },
       class: this.constructor.name,
     };
   }
