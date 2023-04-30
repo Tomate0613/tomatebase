@@ -3,12 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import Database from 'index';
 
-type FsData<T> = T & { readonly id: string; readonly folder: string };
+export type FsMappable = { id: string; folder: string };
 
-export default class FsMap<Value> {
+export default class FsMap<Value extends FsMappable> {
   data: { path: string };
   entries: {
-    [key: string]: FsData<Value>;
+    [key: string]: Value;
   };
 
   constructor(db: Database | null, data: { path: string }) {
@@ -34,15 +34,15 @@ export default class FsMap<Value> {
     return this.entries[id];
   }
 
-  set(id: string, value: Omit<Value, 'id' | 'folder'> & { id?: string }) {
+  set(id: string, value: Omit<Value, 'id' | 'folder'>) {
     const folder = `${this.data.path}/${id}`;
     if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
 
-    this.entries[id] = {
-      ...value,
-      id,
-      folder,
-    } as FsData<Value>;
+    let entry: any = value;
+    entry.folder = folder;
+    entry.id = id;
+
+    this.entries[id] = entry;
   }
 
   remove(id: string) {
@@ -57,14 +57,14 @@ export default class FsMap<Value> {
     return Object.keys(this.entries).length;
   }
 
-  add(
-    value: Omit<Value, 'id' | 'folder'> & { id?: string; folder?: string }
-  ): FsData<Value> {
-    if (!value.id) value.id = uuidv4();
-    value.folder = `${this.data.path}/${value.id}`;
+  add(value: Omit<Value, 'id' | 'folder'>): Value {
+    let entry: any = value;
 
-    this.set(value.id, value);
-    return value as FsData<Value>;
+    entry.id = uuidv4();
+    entry.folder = `${this.data.path}/${entry.id}`;
+
+    this.set(entry.id, entry);
+    return entry;
   }
 
   toJSON() {

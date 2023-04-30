@@ -2,7 +2,9 @@ import Database, { FsMap } from '../src';
 import fs from 'fs';
 
 const createDb = () => {
-  return new Database<{ test: FsMap<{ data: string }> }>(
+  return new Database<{
+    test: FsMap<{ data: string; readonly id: string; readonly folder: string }>;
+  }>(
     'test/fsMapTest/db.json',
     {
       test: new FsMap(null, {

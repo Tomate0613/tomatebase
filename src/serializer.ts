@@ -4,7 +4,7 @@ export interface DbSerializeableClass {
   new (db: Database, data: never): void;
 }
 
-export class DbSerializable<T> {
+export class DefaultDbSerializable<T> {
   data: T;
   protected db: Database;
 
@@ -26,7 +26,7 @@ export interface SerializeableClass {
   new (data: never): void;
 }
 
-export class Serializable<T> {
+export class DefaultSerializable<T> {
   data: T;
 
   constructor(data: T) {

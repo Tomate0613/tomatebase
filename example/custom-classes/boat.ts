@@ -1,13 +1,20 @@
-import { Serializable } from '../../src/serializer';
+import { TomateMappable } from '../../src/map';
+import { DefaultSerializable } from '../../src/serializer';
 
 type BoatData = {
   name: string;
   speed: number;
 };
 
-export default class Boat extends Serializable<BoatData> {
+export default class Boat
+  extends DefaultSerializable<BoatData>
+  implements TomateMappable
+{
+  id: string;
+
   constructor(data?: BoatData) {
     super(data ?? { name: 'DefaultName', speed: 3 });
+    this.id = '';
   }
 
   doubleSpeed() {

@@ -1,16 +1,18 @@
-import Database from '../../src';
+import Database, { TomateMap } from '../../src';
 import Boat from './boat';
 
 type DatabaseData = {
-  boat: Boat;
+  boats: TomateMap<Boat>;
 };
 
 const database = new Database<DatabaseData>(
   'database/db.json',
   {
-    boat: new Boat(),
+    boats: new TomateMap(),
   },
   [Boat]
 );
+
+database.data.boats.add(new Boat());
 
 export default database.data;

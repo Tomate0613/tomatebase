@@ -1,9 +1,9 @@
-import Database, { TomateMap } from '../../src';
+import Database, { TomateMap, TomateMappable } from '../../src';
 
 type WorldData = {
   name: string;
   lastPlayed: number;
-};
+} & TomateMappable;
 
 type DatabaseData = {
   settings: {

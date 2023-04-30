@@ -1,4 +1,4 @@
-import deserialize, { Serializable } from '../src/serializer';
+import deserialize, { DefaultSerializable } from '../src/serializer';
 
 interface TestData {
   name: string;
@@ -6,7 +6,7 @@ interface TestData {
   anotherData?: TestData;
 }
 
-class Person extends Serializable<TestData> {
+class Person extends DefaultSerializable<TestData> {
   get name() {
     return this.data.name;
   }

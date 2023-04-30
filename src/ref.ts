@@ -1,8 +1,8 @@
-import { DbSerializable } from './serializer';
+import { DefaultDbSerializable } from './serializer';
 import { get } from 'lodash';
 import Database from '.';
 
-export default class Reference<T> extends DbSerializable<string> {
+export default class Reference<T> extends DefaultDbSerializable<string> {
   constructor(db: Database, path: string) {
     super(db, path);
   }

@@ -15,12 +15,12 @@ To start using Tomatebase, create a new database instance and define the data st
 
 #### db.ts
 ```TS
-import Database, { TomateMap } from 'tomatebase';
+import Database, { TomateMap, TomateMappable } from 'tomatebase';
 
 type WorldData = {
   name: string;
   lastPlayed: number;
-};
+} & TomateMappable;
 
 type DatabaseData = {
   settings: {
@@ -83,17 +83,17 @@ If we want to reference another piece of data in the database we can use the Ref
 
 #### db.ts
 ```TS
-import Database, { TomateMap, Reference } from 'tomatebase';
+import Database, { TomateMap, Reference, TomateMappable } from 'tomatebase';
 
 type Friend = {
   relation: 'good' | 'bad';
   person: Reference<Person>;
-};
+} & TomateMappable;
 
 type Person = {
   name: string;
   friends: TomateMap<Friend>;
-};
+} & TomateMappable;
 
 type DatabaseData = {
   people: TomateMap<Person>;
@@ -160,12 +160,12 @@ type BoatData = {
   speed: number;
 };
 
-export default class Boat extends Serializable<BoatData> {}
+export default class Boat extends DefaultSerializable<BoatData> {}
 ```
 
 You can now use the boat data anywhere in your class
 ```TS
-export default class Boat extends Serializable<BoatData> {
+export default class Boat extends DefaultSerializable<BoatData> {
   doubleSpeed() {
     return this.data.speed * 2;
   }
@@ -182,7 +182,7 @@ new Boat({
 
 But you can also customize this
 ```TS
-export default class Boat extends Serializable<BoatData> {
+export default class Boat extends DefaultSerializable<BoatData> {
   constructor(data?: BoatData) {
     super(data ?? { name: 'DefaultName', speed: 3 });
   }
@@ -200,7 +200,7 @@ const database = new Database<DatabaseData>(
   {
     boat: new Boat(),
   },
-  [Boat]
+  [Boat] // <--
 );
 ```
 
