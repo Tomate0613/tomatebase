@@ -2,3 +2,4 @@ node_modules
 dist
 test/db.json
 test/fsMapTest
+.vscode
