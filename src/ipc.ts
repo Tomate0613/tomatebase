@@ -1,6 +1,6 @@
-import Database from 'index';
-import { DbSerializeableClass, SerializeableClass } from 'serializer';
-import { GetTypeFromPath, PathInto } from 'types/path';
+import Database from './';
+import { DbSerializeableClass, SerializeableClass } from './serializer';
+import { GetTypeFromPath, PathInto } from './types/path';
 
 export type DbIpcChannels = 'get-db-data' | 'db-function';
 export type IpcCall = (channel: DbIpcChannels, ...data: any[]) => Promise<any>;
