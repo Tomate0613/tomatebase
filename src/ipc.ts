@@ -27,6 +27,17 @@ function getClassFunctionNames(Class: any): string[] {
   );
 }
 
+const getData = async <Path extends string, DB>(
+  path: Path,
+  ipcCall: IpcCall,
+  serializeableClasses: (SerializeableClass | DbSerializeableClass)[]
+): Promise<Promisify<GetTypeFromPath<DB, Path>>> => {
+  const db = await ipcCall('get-db-data', path);
+  return deserialize(db as string, serializeableClasses, ipcCall);
+};
+
+const memoizedGetData = memoize(getData, (path) => path);
+
 export class IpcDbConnection<
   DB extends Database,
   SerializeableClasses extends (SerializeableClass | DbSerializeableClass)[]
@@ -37,9 +48,6 @@ export class IpcDbConnection<
   constructor(ipcCall: IpcCall, classes: SerializeableClasses) {
     this.ipcCall = ipcCall;
     this.serializeableClasses = classes;
-
-    // Memoize the getData function
-    this.getData = memoize(this.getData.bind(this), (path) => path);
   }
 
   /**
@@ -50,15 +58,16 @@ export class IpcDbConnection<
    * @return {*}  {Promise<Promisify<GetTypeFromPath<DB, Path>, FooBar<Classes>>>}
    * @memberof IpcDbConnection
    */
-  getData = memoize(
-    async <Path extends PathInto<DB> | ''>(
-      path: Path
-    ): Promise<Promisify<GetTypeFromPath<DB, Path>>> => {
-      const db = await this.ipcCall('get-db-data', path);
-
-      return deserialize(db as string, this.serializeableClasses, this.ipcCall);
+  getData = async <Path extends PathInto<DB> | ''>(
+    path: Path,
+    memoizeResult = true
+  ): Promise<Promisify<GetTypeFromPath<DB, Path>>> => {
+    if (!memoizeResult) {
+      return getData(path, this.ipcCall, this.serializeableClasses);
     }
-  );
+
+    return memoizedGetData(path, this.ipcCall, this.serializeableClasses);
+  };
 }
 
 function transformClassToProxy(
