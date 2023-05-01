@@ -4,7 +4,9 @@ export type PathInto<T> = T extends FindCircularReferences<T>
   ? any
   : T extends Record<string, any>
   ? {
-      [K in keyof T]-?: `${K & string}` | `${K & string}.${PathInto<T[K]>}`;
+      [K in keyof T]-?: K extends 'classes'
+        ? never
+        : `${K & string}` | `${K & string}.${PathInto<T[K]>}`;
     }[keyof T]
   : never;
 
