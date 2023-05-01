@@ -4,7 +4,7 @@ import { GetTypeFromPath, PathInto } from './types/path';
 
 export type DbIpcChannels = 'get-db-data' | 'db-function';
 export type IpcCall = (channel: DbIpcChannels, ...data: any[]) => Promise<any>;
-type Promisify<T> = {
+export type Promisify<T> = {
   [K in keyof T]: T[K] extends (...args: any) => any
     ? K extends ExtractClientFunctionNames<T>
       ? (...args: Parameters<T[K]>) => Promisify<ReturnType<T[K]>>
