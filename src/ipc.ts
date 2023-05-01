@@ -33,8 +33,8 @@ export class IpcDbConnection<
   ipcCall: IpcCall;
   serializeableClasses: SerializeableClasses;
 
-  constructor(sendToBackend: IpcCall, classes: SerializeableClasses) {
-    this.ipcCall = sendToBackend;
+  constructor(ipcCall: IpcCall, classes: SerializeableClasses) {
+    this.ipcCall = ipcCall;
     this.serializeableClasses = classes;
   }
 
