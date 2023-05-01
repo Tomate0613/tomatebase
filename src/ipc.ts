@@ -1,3 +1,4 @@
+import { memoize } from 'lodash';
 import Database from './';
 import { DbSerializeableClass, SerializeableClass } from './serializer';
 import { GetTypeFromPath, PathInto } from './types/path';
@@ -36,6 +37,9 @@ export class IpcDbConnection<
   constructor(ipcCall: IpcCall, classes: SerializeableClasses) {
     this.ipcCall = ipcCall;
     this.serializeableClasses = classes;
+
+    // Memoize the getData function
+    this.getData = memoize(this.getData.bind(this), (path) => path);
   }
 
   /**
@@ -46,13 +50,15 @@ export class IpcDbConnection<
    * @return {*}  {Promise<Promisify<GetTypeFromPath<DB, Path>, FooBar<Classes>>>}
    * @memberof IpcDbConnection
    */
-  async getData<Path extends PathInto<DB> | ''>(
-    path: Path
-  ): Promise<Promisify<GetTypeFromPath<DB, Path>>> {
-    const db = await this.ipcCall('get-db-data', path);
+  getData = memoize(
+    async <Path extends PathInto<DB> | ''>(
+      path: Path
+    ): Promise<Promisify<GetTypeFromPath<DB, Path>>> => {
+      const db = await this.ipcCall('get-db-data', path);
 
-    return deserialize(db as string, this.serializeableClasses, this.ipcCall);
-  }
+      return deserialize(db as string, this.serializeableClasses, this.ipcCall);
+    }
+  );
 }
 
 function transformClassToProxy(
