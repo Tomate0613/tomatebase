@@ -1,11 +1,11 @@
 import Database, { TomateMap } from '../../src';
 import Boat from './boat';
 
-type DatabaseData = {
+export type DatabaseData = {
   boats: TomateMap<Boat>;
 };
 
-const database = new Database<DatabaseData>(
+export const database = new Database<DatabaseData>(
   'database/db.json',
   {
     boats: new TomateMap(),

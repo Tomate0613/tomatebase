@@ -2,6 +2,7 @@ import deserialize from './serializer';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import Database from 'index';
+import { IpcCall } from 'ipc';
 
 export type FsMappable = { id: string; folder: string };
 
@@ -10,6 +11,35 @@ export default class FsMap<Value extends FsMappable> {
   entries: {
     [key: string]: Value;
   };
+  client = ['get', 'list', 'length'] as const;
+
+  // @ts-ignore
+  private clientProxyHelper = {
+    add: async (ipcCall: IpcCall, path: string, value: Omit<Value, 'id'>) => {
+      const added = await ipcCall('db-function', path, 'add', [value]);
+      this.entries[added.id] = added;
+
+      return added;
+    },
+    set: async (
+      ipcCall: IpcCall,
+      path: string,
+      id: string,
+      value: Omit<Value, 'id'>
+    ) => {
+      let entry: any = value;
+      entry.id = id;
+      entry.folder = `${this.data.path}/${id}`;
+      this.entries[id] = entry;
+
+      await ipcCall('db-function', path, 'set', [id, value]);
+    },
+    remove: async (ipcCall: IpcCall, path: string, id: string) => {
+      delete this.entries[id];
+
+      await ipcCall('db-function', path, 'remove', [id]);
+    },
+  } as const;
 
   constructor(db: Database | null, data: { path: string }) {
     this.entries = {};
@@ -60,10 +90,7 @@ export default class FsMap<Value extends FsMappable> {
   add(value: Omit<Value, 'id' | 'folder'>): Value {
     let entry: any = value;
 
-    entry.id = uuidv4();
-    entry.folder = `${this.data.path}/${entry.id}`;
-
-    this.set(entry.id, entry);
+    this.set(uuidv4(), entry);
     return entry;
   }
 

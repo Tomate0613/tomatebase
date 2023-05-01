@@ -20,4 +20,8 @@ export default class Boat
   doubleSpeed() {
     return this.data.speed * 2;
   }
+
+  foo(bar: string) {
+    return Math.round(this.data.speed * Math.random() * 100) + bar.toString();
+  }
 }

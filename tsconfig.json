@@ -20,7 +20,6 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "outDir": "dist"
-  },
-  "include": ["src"],
-  "exclude": []
+  }
+  // "include": ["src"]
 }
