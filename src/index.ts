@@ -37,3 +37,4 @@ export default class Database<Data = unknown> {
 export { default as TomateMap, TomateMappable } from './map';
 export { default as FsMap, FsMappable } from './fsMap';
 export { default as Reference } from './ref';
+export { IpcDbConnection, DbIpcChannels, IpcCall } from './ipc';
