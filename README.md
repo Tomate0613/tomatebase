@@ -226,3 +226,9 @@ You can also not use the Serializeable class and manually implement serializing 
     };
   }
 ```
+
+## The IPC system
+Tomatebase provides an IPC system for interacting with a database in an Electron application. (This system can also be used in any other server/client scenarios but some additional security checks might be needed).
+The IpcDbConnection class allows you to make calls to the backend database via IPC from the renderer process.
+
+This system is still in development and should not be used yet.
