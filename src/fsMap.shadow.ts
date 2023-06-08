@@ -6,17 +6,20 @@ import { IpcCall } from "ipc";
 export default class ShadowFsMap<Value extends FsMappable> {
   static className = 'FsMap';
   ipcCall: IpcCall;
+  data: { path: string };
   entries: {
     [key: string]: Value;
   };
   constructor(
     ipcCall: IpcCall,
     data: {
-      [key: string]: Value;
+      entries: { [key: string]: Value };
+      data: { path: string };
     }
   ) {
     this.ipcCall = ipcCall;
-    this.entries = data;
+    this.entries = data.entries;
+    this.data = data.data;
   }
   get(id: string) {
     return this.entries[id];
