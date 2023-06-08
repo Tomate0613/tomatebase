@@ -1,45 +1,19 @@
 import deserialize from './serializer';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
-import Database from 'index';
-import { IpcCall } from 'ipc';
+import Database, { IpcCall } from 'index';
 
 export type FsMappable = { id: string; folder: string };
 
+
+/**
+ * @shadowable
+ */
 export default class FsMap<Value extends FsMappable> {
   data: { path: string };
   entries: {
     [key: string]: Value;
   };
-  client = ['get', 'list', 'length'] as const;
-
-  // @ts-ignore
-  private clientProxyHelper = {
-    add: async (ipcCall: IpcCall, path: string, value: Omit<Value, 'id'>) => {
-      const added = await ipcCall('db-function', path, 'add', [value]);
-      this.entries[added.id] = added;
-
-      return added;
-    },
-    set: async (
-      ipcCall: IpcCall,
-      path: string,
-      id: string,
-      value: Omit<Value, 'id'>
-    ) => {
-      let entry: any = value;
-      entry.id = id;
-      entry.folder = `${this.data.path}/${id}`;
-      this.entries[id] = entry;
-
-      await ipcCall('db-function', path, 'set', [id, value]);
-    },
-    remove: async (ipcCall: IpcCall, path: string, id: string) => {
-      delete this.entries[id];
-
-      await ipcCall('db-function', path, 'remove', [id]);
-    },
-  } as const;
 
   constructor(db: Database | null, data: { path: string }) {
     this.entries = {};
@@ -60,10 +34,26 @@ export default class FsMap<Value extends FsMappable> {
     }
   }
 
+  clientConstructor(ipcCall: IpcCall, data: {
+    entries: {[key: string]: Value;},
+    data: { path: string }
+  }) {
+    // @ts-expect-error @ipcCall
+    this.ipcCall = ipcCall;
+    this.entries = data.entries;
+    this.data = data.data;
+  }
+
+  /**
+   * @client
+   */
   get(id: string) {
     return this.entries[id];
   }
 
+  /**
+   * @shadow custom async set(id: string, value: Omit<Value, 'id' | 'folder'>): Promise<void> {|||await this.ipcCall('db-function', 'FsMap', 'set', [id, value]);|||let entry: any = value;|||entry.folder = `${this.data.path}/${id}`;|||entry.id = id;|||this.entries[id] = entry;|||}
+   */
   set(id: string, value: Omit<Value, 'id' | 'folder'>) {
     const folder = `${this.data.path}/${id}`;
     if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
@@ -75,18 +65,33 @@ export default class FsMap<Value extends FsMappable> {
     this.entries[id] = entry;
   }
 
+  /**
+   * @shadow custom async remove(id: string): Promise<void> {|||await this.ipcCall('db-function', 'FsMap', 'remove', [id]);|||delete this.entries[id];|||}
+   */
   remove(id: string) {
+    const entry = this.entries[id];
+    fs.rmSync(`${this.data.path}/${entry.folder}`, { recursive: true });
     delete this.entries[id];
   }
+  
 
+  /**
+   * @client
+   */
   list() {
     return Object.values(this.entries);
   }
 
+  /**
+   * @client
+   */
   length() {
     return Object.keys(this.entries).length;
   }
 
+  /**
+   * @shadow custom async add(value: Omit<Value, 'id'>): Promise<Value> {|||const entry = await this.ipcCall('db-function', 'FsMap', 'add', [value]);|||this.set(entry.id, entry);|||return entry;|||}
+   */
   add(value: Omit<Value, 'id' | 'folder'>): Value {
     let entry: any = value;
 
@@ -107,5 +112,12 @@ export default class FsMap<Value extends FsMappable> {
       class: this.constructor.name,
       db: true,
     };
+  }
+
+  toClientJSON() {
+    return {
+      data: this.data,
+      class: this.constructor.name,
+    }
   }
 }

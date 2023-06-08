@@ -16,7 +16,10 @@ export class DefaultDbSerializable<T> {
   toJSON() {
     return {
       data: this.data,
-      class: this.constructor.name,
+      class:
+        'className' in this.constructor
+          ? this.constructor.className
+          : this.constructor.name,
       db: true,
     };
   }
@@ -36,7 +39,10 @@ export class DefaultSerializable<T> {
   toJSON() {
     return {
       data: this.data,
-      class: this.constructor.name,
+      class:
+        'className' in this.constructor
+          ? this.constructor.className
+          : this.constructor.name,
     };
   }
 }
@@ -53,7 +59,10 @@ export class DefaultMappableSerializable<T> implements TomateMappable {
   toJSON() {
     return {
       data: { data: this.data, id: this.id },
-      class: this.constructor.name,
+      class:
+        'className' in this.constructor
+          ? this.constructor.className
+          : this.constructor.name,
     };
   }
 }
@@ -72,7 +81,10 @@ export class DefaultFsMappableSerializable<T> implements FsMappable {
   toJSON() {
     return {
       data: { data: this.data, id: this.id, folder: this.folder },
-      class: this.constructor.name,
+      class:
+        'className' in this.constructor
+          ? this.constructor.className
+          : this.constructor.name,
     };
   }
 }
@@ -88,8 +100,10 @@ export default function deserialize(
     }
 
     if (value && value.class) {
-      const Class: any = serializables.find(
-        (serializeable) => serializeable.name === value.class
+      const Class: any = serializables.find((serializeable) =>
+        'className' in serializeable
+          ? serializeable.className === value.class
+          : serializeable.name === value.class
       );
 
       if (!Class) {

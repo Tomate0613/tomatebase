@@ -1,13 +1,14 @@
 import { get } from 'lodash';
-import Database, { TomateMap } from '../../src';
-import { DbIpcChannels, IpcDbConnection } from '../../src/ipc';
+import Database, { ShadowTomateMap, TomateMap } from '../../src';
+import { DbIpcChannels, IpcDbConnection, serialize } from '../../src/ipc';
 import Boat from './boat';
 import { DatabaseData, database as databaseBackend } from './db';
+import ShadowBoat from './boat.shadow';
 
 // Normally this data would be send using something like ipcMain and ipcRenderer in electron
 async function backendTest(channel: DbIpcChannels, ...data: string[]) {
   if (channel === 'get-db-data') {
-    return JSON.stringify(
+    return serialize(
       data[0] ? get(databaseBackend, data[0]) : databaseBackend
     );
   }
@@ -22,9 +23,10 @@ async function backendTest(channel: DbIpcChannels, ...data: string[]) {
 }
 
 databaseBackend.data.boats.set('1', new Boat());
+console.log(JSON.stringify(databaseBackend));
 
 async function test() {
-  const classes = [Boat, TomateMap];
+  const classes = [ShadowBoat, ShadowTomateMap];
   const ipc = new IpcDbConnection<Database<DatabaseData>, typeof classes>(
     backendTest,
     classes
