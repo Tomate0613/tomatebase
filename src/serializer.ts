@@ -1,4 +1,4 @@
-import Database, { FsMappable, TomateMappable } from 'index';
+import Database, { FsMappable, TomateMappable } from '.';
 
 export interface DbSerializeableClass {
   new (db: Database, data: never): void;
