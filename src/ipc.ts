@@ -3,8 +3,10 @@ import { DbSerializeableClass, SerializeableClass } from './serializer';
 import { GetTypeFromPath, PathInto } from './types/path';
 import Database from './database';
 
-export type DbIpcChannels = 'get-db-data' | 'db-function';
+export type DbIpcChannels = 'get-db-data' | 'db-function' | 'db-create';
 export type IpcCall = (channel: DbIpcChannels, ...data: any[]) => Promise<any>;
+
+
 
 const getData = async <Path extends string, DB>(
   path: Path,
@@ -44,6 +46,11 @@ export class IpcDbConnection<
 
     return memoizedGetData(path, this.ipcCall, this.serializeableClasses);
   };
+
+  // TODO ts
+  async createNew(className: string, ...data: unknown[]) {
+    await this.ipcCall('db-create', className, data);
+  }
 }
 
 function serializeReplacer(_key: string, value: unknown): unknown {
