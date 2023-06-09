@@ -112,10 +112,10 @@ export default class FsMap<Value extends FsMappable> {
       class: this.constructor.name,
       db: true,
 
-      toClientJSON() {
+      toClientJSON: () => {
         return {
-          data: this.data,
-          class: 'FsMap',
+          data: {entries: this.entries,data: this.data},
+          class: this.constructor.name,
         }
       }
     };
