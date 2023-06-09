@@ -1,5 +1,5 @@
 import { memoize } from 'lodash';
-import deserialize, { DbSerializeableClass, SerializeableClass } from './serializer';
+import { DbSerializeableClass, SerializeableClass } from './serializer';
 import { GetTypeFromPath, PathInto } from './types/path';
 import Database from './database';
 
@@ -11,8 +11,10 @@ const getData = async <Path extends string, DB>(
   ipcCall: IpcCall,
   serializeableClasses: (SerializeableClass | DbSerializeableClass)[]
 ): Promise<GetTypeFromPath<DB, Path>> => {
-  const db = await ipcCall('get-db-data', path);
-  return deserialize(db as string, serializeableClasses);
+  const data = await ipcCall('get-db-data', path);
+
+  const parsedJson = JSON.parse(data);
+  return transform('', parsedJson, serializeableClasses, ipcCall);
 };
 
 const memoizedGetData = memoize(getData, (path) => path);
@@ -54,4 +56,52 @@ function serializeReplacer(_key: string, value: unknown): unknown {
 
 export function serialize(d: unknown) {
   return JSON.stringify(d, serializeReplacer);
+}
+
+
+
+function transform(
+  path: string,
+  value: any,
+  serializables: readonly (SerializeableClass | DbSerializeableClass)[],
+  ipcCall: IpcCall
+) {
+  if (value === null) {
+    return null;
+  }
+
+  if (typeof value === 'object') {
+    Object.keys(value).forEach((key) => {
+      value[key] = transform(
+        path ? `${path}.${key}` : key,
+        value[key],
+        serializables,
+        ipcCall
+      );
+    });
+  }
+
+  if (value && value.class) {
+    const Class: any = serializables.find(
+      (serializeable) => ('className' in serializeable
+      ? serializeable.className === value.class
+      : serializeable.name === value.class)
+    );
+
+    if (!Class) {
+      throw new Error(
+        `Forgot to include class ${value.class} when using deserialize`
+      );
+    }
+
+    if (value.db)
+      throw new Error(
+        `Cannot instantiate class ${value.class} because it requires a reference to the database, which is not supported on the client`);
+
+    const instance = new Class((channel: DbIpcChannels, ...data: any[]) => {ipcCall(channel, path, ...data)}, value.data);
+
+    value = instance;
+  }
+
+  return value;
 }

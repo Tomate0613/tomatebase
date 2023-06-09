@@ -13,6 +13,7 @@ async function backendTest(channel: DbIpcChannels, ...data: string[]) {
     );
   }
   if (channel === 'db-function') {
+    console.log(data);
     const Class = get(databaseBackend, data[0]);
     const funcReturnValue = await Class[data[1]](...data[2]);
 

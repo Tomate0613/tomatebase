@@ -10,6 +10,7 @@ export default class ShadowBoat
   ipcCall: IpcCall;
   id: string;
   static className = 'ThisIsABoat';
+
   constructor(ipcCall: IpcCall, data?: BoatData) {
     super(data ?? { name: 'DefaultName', speed: 3 });
     this.id = '';
@@ -19,7 +20,7 @@ export default class ShadowBoat
     return this.data.speed * 2;
   }
 
-  foo(bar: string) {
-    this.ipcCall('db-function', 'Boat', 'foo', arguments);
+  foo(_bar: string) {
+    this.ipcCall('db-function', 'foo', arguments);
   }
 }
