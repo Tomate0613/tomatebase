@@ -8,4 +8,6 @@ export { default as ShadowFsMap } from './fsMap.shadow';
 
 export { default as Reference } from './ref';
 
+export { default as findClass } from './findClass';
+
 export { IpcDbConnection, DbIpcChannels, IpcCall } from './ipc';

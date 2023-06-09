@@ -2,6 +2,7 @@ import { memoize } from 'lodash';
 import { DbSerializeableClass, SerializeableClass } from './serializer';
 import { GetTypeFromPath, PathInto } from './types/path';
 import Database from './database';
+import findClass from './findClass';
 
 export type DbIpcChannels = 'get-db-data' | 'db-function' | 'db-create';
 export type IpcCall = (channel: DbIpcChannels, ...data: any[]) => Promise<any>;
@@ -89,11 +90,7 @@ function transform(
   }
 
   if (value && value.class) {
-    const Class: any = serializables.find(
-      (serializeable) => ('className' in serializeable
-      ? serializeable.className === value.class
-      : serializeable.name === value.class)
-    );
+    const Class: any = findClass(value.class, serializables);
 
     if (!Class) {
       throw new Error(

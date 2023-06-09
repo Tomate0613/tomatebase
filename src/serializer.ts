@@ -1,3 +1,4 @@
+import findClass from './findClass';
 import Database, { FsMappable, TomateMappable } from './';
 
 export interface DbSerializeableClass {
@@ -100,11 +101,7 @@ export default function deserialize(
     }
 
     if (value && value.class) {
-      const Class: any = serializables.find((serializeable) =>
-        'className' in serializeable
-          ? serializeable.className === value.class
-          : serializeable.name === value.class
-      );
+      const Class: any = findClass(value.class, serializables);
 
       if (!Class) {
         throw new Error(
