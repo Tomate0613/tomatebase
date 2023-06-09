@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import Database, { ShadowTomateMap, TomateMap } from '../../src';
+import Database, { ShadowTomateMap } from '../../src';
 import { DbIpcChannels, IpcDbConnection, serialize } from '../../src/ipc';
 import Boat from './boat';
 import { DatabaseData, database as databaseBackend } from './db';

@@ -1,7 +1,7 @@
-import deserialize from './serializer';
+import deserialize from 'serializer';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
-import Database, { IpcCall } from '.';
+import Database, { IpcCall } from 'index';
 
 export type FsMappable = { id: string; folder: string };
 

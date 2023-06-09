@@ -1,4 +1,4 @@
-import { DefaultSerializable } from './serializer';
+import { DefaultSerializable } from 'serializer';
 import { v4 as uuidv4 } from 'uuid';
 
 export type TomateMappable = { readonly id: string };
