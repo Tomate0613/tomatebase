@@ -1,10 +1,6 @@
 import fs from 'fs';
-import deserialize, {
-  DbSerializeableClass,
-  SerializeableClass,
-} from 'serializer';
 import path from 'path';
-
+import deserialize, { DbSerializeableClass, SerializeableClass } from './serializer';
 export default class Database<Data = unknown> {
   data: Data;
   filepath: string;

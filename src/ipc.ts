@@ -1,7 +1,7 @@
 import { memoize } from 'lodash';
-import deserialize, { DbSerializeableClass, SerializeableClass } from 'serializer';
-import { GetTypeFromPath, PathInto } from 'types/path';
-import Database from 'database';
+import deserialize, { DbSerializeableClass, SerializeableClass } from './serializer';
+import { GetTypeFromPath, PathInto } from './types/path';
+import Database from './database';
 
 export type DbIpcChannels = 'get-db-data' | 'db-function';
 export type IpcCall = (channel: DbIpcChannels, ...data: any[]) => Promise<any>;
