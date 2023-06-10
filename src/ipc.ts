@@ -1,5 +1,4 @@
 import { memoize } from 'lodash';
-import { DbSerializeableClass, SerializeableClass } from './serializer';
 import { GetTypeFromPath, PathInto } from './types/path';
 import Database from './database';
 import findClass from './findClass';
@@ -7,24 +6,29 @@ import findClass from './findClass';
 export type DbIpcChannels = 'get-db-data' | 'db-function' | 'db-create';
 export type IpcCall = (channel: DbIpcChannels, ...data: any[]) => Promise<any>;
 
+export interface ShadowSerializeableClass {
+  new(ipcCall: IpcCall, data: never): void;
+}
 
+export interface ShadowDbSerializeableClass {
+  new(ipcCall: IpcCall, db: Database, data: never): void;
+}
 
 const getData = async <Path extends string, DB>(
   path: Path,
   ipcCall: IpcCall,
-  serializeableClasses: (SerializeableClass | DbSerializeableClass)[]
+  serializeableClasses: (ShadowSerializeableClass | ShadowDbSerializeableClass)[]
 ): Promise<GetTypeFromPath<DB, Path>> => {
   const data = await ipcCall('get-db-data', path);
 
-  const parsedJson = JSON.parse(data);
-  return transform('', parsedJson, serializeableClasses, ipcCall);
+  return deserialize(data, serializeableClasses, ipcCall);
 };
 
 const memoizedGetData = memoize(getData, (path) => path);
 
 export class IpcDbConnection<
   DB extends Database,
-  SerializeableClasses extends (SerializeableClass | DbSerializeableClass)[]
+  SerializeableClasses extends (ShadowSerializeableClass | ShadowDbSerializeableClass)[]
 > {
   ipcCall: IpcCall;
   serializeableClasses: SerializeableClasses;
@@ -49,29 +53,44 @@ export class IpcDbConnection<
   };
 
   // TODO ts
-  async createNew(className: string, ...data: unknown[]) {
-    await this.ipcCall('db-create', className, data);
+  createNew<T>(className: string, ...data: unknown[]): Promise<T> {
+    return this.ipcCall('db-create', className, data);
   }
 }
 
-function serializeReplacer(_key: string, value: unknown): unknown {
+function serializeToClientReplacer(_key: string, value: unknown): unknown {
   if (typeof value === 'object' && value !== null && 'toClientJSON' in value && typeof value.toClientJSON === 'function') {
     return value.toClientJSON();
   }
-  
+
+  return value;
+}
+
+function serializeToServerReplacer(_key: string, value: unknown): unknown {
+  if (typeof value === 'object' && value !== null && 'toServerJSON' in value && typeof value.toServerJSON === 'function') {
+    return value.toServerJSON();
+  }
+
   return value;
 }
 
 export function serialize(d: unknown) {
-  return JSON.stringify(d, serializeReplacer);
+  return JSON.stringify(d, serializeToClientReplacer);
 }
 
+export function serializeToServer(d: unknown) {
+  return JSON.stringify(d, serializeToServerReplacer);
+}
+
+function deserialize(json: string, serializeableClasses: readonly (ShadowSerializeableClass | ShadowDbSerializeableClass)[], ipcCall: IpcCall) {
+  return transform('', JSON.parse(json), serializeableClasses, ipcCall)
+}
 
 
 function transform(
   path: string,
   value: any,
-  serializables: readonly (SerializeableClass | DbSerializeableClass)[],
+  serializables: readonly (ShadowSerializeableClass | ShadowDbSerializeableClass)[],
   ipcCall: IpcCall
 ) {
   if (value === null) {
@@ -102,7 +121,14 @@ function transform(
       throw new Error(
         `Cannot instantiate class ${value.class} because it requires a reference to the database, which is not supported on the client`);
 
-    const instance = new Class((channel: DbIpcChannels, ...data: any[]) => {ipcCall(channel, path, ...data)}, value.data);
+    // TODO Differentiate between IpcCall and ServerIpcCall as they are completely different
+    const instance = new Class(async (channel: DbIpcChannels, fnName: string, data: any[]) => {
+      const serializedReturnValue = await ipcCall(channel, path, fnName, serializeToServer(data));
+      if (serializedReturnValue === undefined)
+        return undefined;
+
+      return deserialize(serializedReturnValue, serializables, ipcCall)
+    }, value.data);
 
     value = instance;
   }

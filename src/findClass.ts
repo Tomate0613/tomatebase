@@ -1,9 +1,9 @@
-import { SerializeableClass, DbSerializeableClass } from "./serializer";
 
-export default function findClass(className: string, serializables: readonly (SerializeableClass | DbSerializeableClass)[],) {
+
+export default function findClass(className: string, serializables: readonly ({ className?: string, name: string })[],) {
   return serializables.find(
-    (serializeable) => ('className' in serializeable
-    ? serializeable.className === className
-    : serializeable.name === className)
+    (serializeable) => (serializeable.className
+      ? serializeable.className === className
+      : serializeable.name === className)
   );
 }

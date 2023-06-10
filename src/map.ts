@@ -54,9 +54,9 @@ export default class TomateMap<Value extends TomateMappable> extends DefaultSeri
   }
 
   /**
-   * @shadow custom async add(value: Omit<Value, 'id'>): Promise<Value> {|||const entry = await this.ipcCall('db-function', 'TomateMap', 'add', [value]);|||this.set(entry.id, entry);|||return entry;|||}
+   * @shadow custom async add(value: Omit<Value, 'id'>): Promise<Value> {|||const entry = await this.ipcCall('db-function', 'add', [value]);|||this.data[entry.id] = entry;|||return entry;|||}
    */
-  add(value: Omit<Value, 'id'>): Value {
+  add(value: Omit<Value, 'id'>): string {
     let entry: any = value;
 
     this.set(uuidv4(), entry);

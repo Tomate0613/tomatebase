@@ -1,5 +1,4 @@
 import { TomateMappable } from '../../src/map';
-import { DefaultSerializable } from '../../src/serializer';
 
 export type BoatData = {
   name: string;
@@ -9,13 +8,20 @@ export type BoatData = {
 /**
  * @shadowable
  */
-export default class Boat extends DefaultSerializable<BoatData> implements TomateMappable {
+export default class Boat implements TomateMappable {
   id: string;
+  data: BoatData;
   static className = 'ThisIsABoat';
 
-  constructor(data?: BoatData) {
-    super(data ?? { name: 'DefaultName', speed: 3 });
-    this.id = '';
+  constructor(data: BoatData | { data: BoatData, id: string }) {
+    if ('id' in data) {
+      this.id = data.id;
+      this.data = data.data;
+      return;
+    }
+
+    this.data = data;
+    this.id = 'temp-should-be-replaced-by-map';
   }
 
   /**
@@ -27,5 +33,12 @@ export default class Boat extends DefaultSerializable<BoatData> implements Tomat
 
   foo(bar: string) {
     return Math.round(this.data.speed * Math.random() * 100) + bar.toString();
+  }
+
+  /**
+   * @client
+   */
+  toJSON() {
+    return { data: { data: this.data, id: this.id }, class: Boat.className }
   }
 }

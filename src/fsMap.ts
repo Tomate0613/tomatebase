@@ -35,7 +35,7 @@ export default class FsMap<Value extends FsMappable> {
   }
 
   clientConstructor(ipcCall: IpcCall, data: {
-    entries: {[key: string]: Value;},
+    entries: { [key: string]: Value; },
     data: { path: string }
   }) {
     // @ts-expect-error @ipcCall
@@ -52,7 +52,7 @@ export default class FsMap<Value extends FsMappable> {
   }
 
   /**
-   * @shadow custom async set(id: string, value: Omit<Value, 'id' | 'folder'>): Promise<void> {|||await this.ipcCall('db-function', 'FsMap', 'set', [id, value]);|||let entry: any = value;|||entry.folder = `${this.data.path}/${id}`;|||entry.id = id;|||this.entries[id] = entry;|||}
+   * @shadow custom async set(id: string, value: Omit<Value, 'id' | 'folder'>): Promise<void> {|||await this.ipcCall('db-function', 'set', [id, value]);|||let entry: any = value;|||entry.folder = `${this.data.path}/${id}`;|||entry.id = id;|||this.entries[id] = entry;|||}
    */
   set(id: string, value: Omit<Value, 'id' | 'folder'>) {
     const folder = `${this.data.path}/${id}`;
@@ -66,14 +66,17 @@ export default class FsMap<Value extends FsMappable> {
   }
 
   /**
-   * @shadow custom async remove(id: string): Promise<void> {|||await this.ipcCall('db-function', 'FsMap', 'remove', [id]);|||delete this.entries[id];|||}
+   * @shadow custom async remove(id: string, deleteFolder: boolean): Promise<void> {|||await this.ipcCall('db-function', 'remove', [id, deleteFolder]);|||delete this.entries[id];|||}
    */
-  remove(id: string) {
+  remove(id: string, deleteFolder: boolean) {
     const entry = this.entries[id];
-    fs.rmSync(`${this.data.path}/${entry.folder}`, { recursive: true });
+
+    if(deleteFolder)
+      fs.rmSync(`${this.data.path}/${entry.folder}`, { recursive: true });
+
     delete this.entries[id];
   }
-  
+
 
   /**
    * @client
@@ -90,7 +93,7 @@ export default class FsMap<Value extends FsMappable> {
   }
 
   /**
-   * @shadow custom async add(value: Omit<Value, 'id'>): Promise<Value> {|||const entry = await this.ipcCall('db-function', 'FsMap', 'add', [value]);|||this.set(entry.id, entry);|||return entry;|||}
+   * @shadow custom async add(value: Omit<Value, 'id'>): Promise<Value> {|||const entry = await this.ipcCall('db-function', 'add', [value]);|||this.entries[entry.id] = entry;|||return entry;|||}
    */
   add(value: Omit<Value, 'id' | 'folder'>): Value {
     let entry: any = value;
@@ -114,7 +117,7 @@ export default class FsMap<Value extends FsMappable> {
 
       toClientJSON: () => {
         return {
-          data: {entries: this.entries,data: this.data},
+          data: { entries: this.entries, data: this.data },
           class: this.constructor.name,
         }
       }

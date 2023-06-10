@@ -13,6 +13,6 @@ export const database = new Database<DatabaseData>(
   [Boat]
 );
 
-database.data.boats.add(new Boat());
+database.data.boats.add(new Boat({ name: 'MyBoat', speed: 42 }));
 
 export default database.data;

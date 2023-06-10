@@ -38,10 +38,8 @@ export default class ShadowTomateMap<
   }
 
   async add(value: Omit<Value, 'id'>): Promise<Value> {
-    const entry = await this.ipcCall('db-function', 'TomateMap', 'add', [
-      value,
-    ]);
-    this.set(entry.id, entry);
+    const entry = await this.ipcCall('db-function', 'add', [value]);
+    this.data[entry.id] = entry;
     return entry;
   }
 }
